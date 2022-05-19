@@ -5,11 +5,12 @@ async function main() {
   A ContractFactory in ethers.js is an abstraction used to deploy new smart contracts,
   so whitelistContract here is a factory for instances of our Whitelist contract.
   */
-  const nftContract = await ethers.getContractFactory("Baker");
+  const nftContract = await ethers.getContractFactory("BakerNFT");
 
   // here we deploy the contract
-  const deployedNFTContract = await nftContract.deploy();
-  // 10 is the Maximum number of whitelisted addresses allowed
+  const deployedNFTContract = await nftContract.deploy(
+    "https://baker-nft.vercel.app/api/"
+  );
 
   // Wait for it to finish deploying
   await deployedNFTContract.deployed();

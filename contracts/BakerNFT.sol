@@ -14,13 +14,12 @@ contract BakerNFT is ERC721URIStorage, Ownable {
      */
     string _baseTokenURI;
 
-    address payable owner;
+    address payable _owner;
 
     // _paused is used to pause the contract in case of an emergency
     bool public _paused;
 
     struct MarketItem {
-        string tokenURI;
         address owner;
         uint256 price;
     }
@@ -40,7 +39,7 @@ contract BakerNFT is ERC721URIStorage, Ownable {
      * It also initializes an instance of whitelist interface.
      */
     constructor(string memory baseURI) ERC721("Baker NFT", "BNFT") {
-        owner = payable(msg.sender);
+        _owner = payable(msg.sender);
         _baseTokenURI = baseURI;
     }
 
@@ -71,16 +70,11 @@ contract BakerNFT is ERC721URIStorage, Ownable {
     /**
      * @dev create NFTs
      */
-    function createNFT(string memory tokenURI, uint256 price)
-        public
-        onlyOwner
-        returns (uint256)
-    {
+    function createNFT(uint256 price) public onlyOwner returns (uint256) {
         tokenIds.increment();
         uint256 newTokenId = tokenIds.current();
         _mint(msg.sender, newTokenId);
-        _setTokenURI(newTokenId, tokenURI);
-        MarketItem memory item = MarketItem(tokenURI, msg.sender, price);
+        MarketItem memory item = MarketItem(msg.sender, price);
         MarketItems[newTokenId] = item;
         NFTs[msg.sender].push(newTokenId);
         return newTokenId;
@@ -92,7 +86,7 @@ contract BakerNFT is ERC721URIStorage, Ownable {
      */
     function withdraw() public onlyOwner {
         uint256 amount = address(this).balance;
-        (bool sent, ) = owner.call{value: amount}("");
+        (bool sent, ) = _owner.call{value: amount}("");
         require(sent, "Failed to send Ether");
     }
 
