@@ -18,8 +18,25 @@ async function main() {
   const greeter = await Greeter.deploy("Hello, Hardhat!");
 
   await greeter.deployed();
-
   console.log("Greeter deployed to:", greeter.address);
+
+  const BakerNFT = await ethers.getContractFactory("BakerNFT");
+  const bakerNFT = await BakerNFT.deploy("https://baker-nft.vercel.app/api/");
+  await bakerNFT.deployed();
+
+  const price = ethers.utils.parseUnits("0.001", "ether");
+  await bakerNFT.createNFT(price);
+  await bakerNFT.createNFT(price);
+  await bakerNFT.createNFT(price);
+  await bakerNFT.createNFT(price);
+
+  let all = await bakerNFT.getMarket("1");
+  let items = await bakerNFT.fetchMarketItems();
+
+  let mine = await bakerNFT.fetchMyNFTs();
+
+  console.log(items);
+  console.log(mine);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

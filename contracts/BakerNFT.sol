@@ -22,9 +22,9 @@ contract BakerNFT is ERC721URIStorage, Ownable {
     struct MarketItem {
         address owner;
         uint256 price;
+        bool sold;
     }
 
-    mapping(address => uint256[]) private NFTs;
     mapping(uint256 => MarketItem) MarketItems;
 
     modifier onlyWhenNotPaused() {
@@ -34,9 +34,8 @@ contract BakerNFT is ERC721URIStorage, Ownable {
 
     /**
      * @dev ERC721 constructor takes in a `name` and a `symbol` to the token collection.
-     * name in our case is `Crypto Devs` and symbol is `CD`.
-     * Constructor for Crypto Devs takes in the baseURI to set _baseTokenURI for the collection.
-     * It also initializes an instance of whitelist interface.
+     * name in our case is `Baker NFTs` and symbol is `BNFT`.
+     * Constructor for Baker NFT takes in the baseURI to set _baseTokenURI for the collection.
      */
     constructor(string memory baseURI) ERC721("Baker NFT", "BNFT") {
         _owner = payable(msg.sender);
@@ -49,6 +48,7 @@ contract BakerNFT is ERC721URIStorage, Ownable {
             "Price must be equal to listing price"
         );
         _transfer(MarketItems[tokenId].owner, msg.sender, tokenId);
+        MarketItems[tokenId].sold = true;
         MarketItems[tokenId].owner = msg.sender;
     }
 
@@ -74,10 +74,55 @@ contract BakerNFT is ERC721URIStorage, Ownable {
         tokenIds.increment();
         uint256 newTokenId = tokenIds.current();
         _mint(msg.sender, newTokenId);
-        MarketItem memory item = MarketItem(msg.sender, price);
+        MarketItem memory item = MarketItem(msg.sender, price, false);
         MarketItems[newTokenId] = item;
-        NFTs[msg.sender].push(newTokenId);
         return newTokenId;
+    }
+
+    function getMarket(uint256 tokenId)
+        public
+        view
+        returns (MarketItem memory)
+    {
+        return MarketItems[tokenId];
+    }
+
+    /* Returns all unsold market items */
+    function fetchMarketItems() public view returns (MarketItem[] memory) {
+        uint256 itemCount = tokenIds.current();
+        uint256 currentIndex = 0;
+
+        MarketItem[] memory items = new MarketItem[](itemCount);
+        for (uint256 i = 0; i < itemCount; i++) {
+            uint256 currentId = i + 1;
+            MarketItem storage currentItem = MarketItems[currentId];
+            items[currentIndex] = currentItem;
+            currentIndex += 1;
+        }
+        return items;
+    }
+
+    function fetchMyNFTs() public view returns (MarketItem[] memory) {
+        uint256 totalItemCount = tokenIds.current();
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (MarketItems[i + 1].owner == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        MarketItem[] memory items = new MarketItem[](itemCount);
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (MarketItems[i + 1].owner == msg.sender) {
+                uint256 currentId = i + 1;
+                MarketItem storage currentItem = MarketItems[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
     }
 
     /**
