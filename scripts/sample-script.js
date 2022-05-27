@@ -31,11 +31,11 @@ async function main() {
   await bakerNFT.createNFT(price);
 
   let all = await bakerNFT.getMarket("1");
-  let items = await bakerNFT.fetchMarketItems();
+  //let items = await bakerNFT.fetchMarketItems();
 
   let mine = await bakerNFT.fetchMyNFTs();
 
-  console.log(items);
+  //console.log(items);
   console.log(mine);
 }
 

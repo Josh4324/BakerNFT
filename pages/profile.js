@@ -118,10 +118,14 @@ export default function Home() {
         gasLimit: 300000,
       });
       console.log(publicData);
+      const addr = localStorage.getItem("address");
+      console.log(addr);
+
       let items = [];
+
       await Promise.all(
         publicData.map(async (i) => {
-          if (i.sold === false) {
+          if (i.sold === true && i.owner === addr) {
             const tokenURI = await contract.tokenURI(i.tokenId);
             const meta = await axios.get(tokenURI);
             console.log(meta);
@@ -140,6 +144,7 @@ export default function Home() {
           }
         })
       );
+
       console.log(items);
       setNft(items.reverse());
       setLoading(false);
@@ -165,7 +170,6 @@ export default function Home() {
 
       console.log("Mining...", Txn.hash);
       setLoading1("");
-      window.location.href = "/";
       //handle smartcontract here
     } catch (error) {
       setLoading1("");
@@ -202,6 +206,7 @@ export default function Home() {
           setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
           setAddress(accounts[0]);
           localStorage.setItem("address", accounts[0]);
+          console.log("enddd");
         }
       });
 
@@ -260,7 +265,7 @@ export default function Home() {
   return (
     <div>
       <Head>
-        <title>Bakers NFTs</title>
+        <title>Bakers NFTs - Profile</title>
         <meta name="description" content="Whitelist-Dapp" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -365,15 +370,6 @@ export default function Home() {
                   {loading1 === item.tokenId
                     ? "Minting in progress......."
                     : null}
-                </div>
-
-                <div>
-                  <button
-                    onClick={() => mint(item.price, item.tokenId)}
-                    className="mint"
-                  >
-                    Mint
-                  </button>
                 </div>
               </div>
             </div>
