@@ -278,7 +278,12 @@ export default function Home() {
       <header className="header">
         <div className="header__logo">
           <Link href="/">
-            <img src="./images/log.svg" alt="logo" className="logo__white" />
+            <img
+              src="./logo.jpg"
+              alt="logo"
+              className="logo__white"
+              style={{ width: "150px" }}
+            />
           </Link>
         </div>
 
