@@ -1,4 +1,23 @@
-export default function handler(req, res) {
+import Cors from "cors";
+// Initializing the cors middleware
+const cors = Cors({
+  methods: ["GET", "HEAD"],
+});
+
+function runMiddleware(req, res, fn) {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+
+      return resolve(result);
+    });
+  });
+}
+
+export default async function handler(req, res) {
+  await runMiddleware(req, res, cors);
   // get the tokenId from the query params
   // As all the images are uploaded on github, we can extract the images from github directly.
   const image_url =

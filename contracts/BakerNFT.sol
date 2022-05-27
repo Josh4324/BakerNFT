@@ -23,6 +23,7 @@ contract BakerNFT is ERC721URIStorage, Ownable {
         address owner;
         uint256 price;
         bool sold;
+        uint256 tokenId;
     }
 
     mapping(uint256 => MarketItem) MarketItems;
@@ -74,7 +75,12 @@ contract BakerNFT is ERC721URIStorage, Ownable {
         tokenIds.increment();
         uint256 newTokenId = tokenIds.current();
         _mint(msg.sender, newTokenId);
-        MarketItem memory item = MarketItem(msg.sender, price, false);
+        MarketItem memory item = MarketItem(
+            msg.sender,
+            price,
+            false,
+            newTokenId
+        );
         MarketItems[newTokenId] = item;
         return newTokenId;
     }

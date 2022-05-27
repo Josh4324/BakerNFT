@@ -6,6 +6,7 @@ import Web3Modal from "web3modal";
 import Link from "next/link";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from "web3";
+import axios from "axios";
 import { abi, NFT_CONTRACT_ADDRESS } from "../constants";
 import styles from "../styles/Home.module.css";
 
@@ -104,6 +105,44 @@ export default function Home() {
     return web3Provider;
   };
 
+  const getNFTs = async () => {
+    try {
+      const provider = new ethers.providers.JsonRpcProvider(
+        "https://data-seed-prebsc-1-s1.binance.org:8545"
+      );
+      const contract = new ethers.Contract(NFT_CONTRACT_ADDRESS, abi, provider);
+      const publicData = await contract.fetchMarketItems({
+        gasLimit: 300000,
+      });
+
+      /* const items = await Promise.all(
+        publicData.map(async (i) => {
+          const tokenURI = await contract.tokenURI(i.tokenId);
+          const meta = await axios.get(tokenURI);
+          console.log(meta);
+          let price = ethers.utils.formatUnits(i.price.toString(), "ether");
+          let item = {
+            price,
+            tokenId: i.tokenId.toNumber(),
+            owner: i.owner,
+            image: meta.data.image,
+            desscription: meta.data.desscription,
+            tokenURI,
+          };
+          return item;
+        })
+      ); */
+      console.log("p", publicData);
+      const tokenURI = await contract.tokenURI(publicData[0].tokenId);
+      console.log(tokenURI);
+      const meta = await axios.get(tokenURI);
+      console.log(meta);
+      //console.log(items);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const connectWallet = async () => {
     try {
       // When used for the first time, it prompts the user to connect their wallet
@@ -180,6 +219,10 @@ export default function Home() {
 
     // if wallet is not connected, create a new instance of Web3Modal and connect the MetaMask wallet
   }, [address]);
+
+  useEffect(() => {
+    getNFTs();
+  }, []);
 
   return (
     <div>
